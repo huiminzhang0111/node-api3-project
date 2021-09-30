@@ -22,30 +22,37 @@ async function validateUserId(req, res, next) {
   }
 }
 
-const userSchema = yup.object().shape({
-  name: yup
+function validateUser(req, res, next) {
+  const { name } = req.body
+  if (!name || !name.trim()) {
+    res.status(400).json({
+      message: "missing required name field"
+    })
+  } else {
+    req.name = name.trim()
+    next()
+  }
+}
+
+const postSchema = yup.object().shape({
+  post: yup
     .string()
-    .typeError('name must be a string')
     .trim()
-    .required('missing required name field')
+    .required("missing required text field")
 })
 
-async function validateUser(req, res, next) {
+async function validatePost(req, res, next) {
   try {
-    const validated = await userSchema.validate(
+    const validatedPost = await postSchema.validate(
       req.body,
       { strict: false, stripUnknown: true }
     )
-    req.body = validated
+    req.body = validatePost
     next()
   } catch (err) {
     next({ status: 400, message: err.message })
   }
 }
 
-function validatePost(req, res, next) {
-  // DO YOUR MAGIC
-}
-
 // do not forget to expose these functions to other modules
-module.exports = { logger, validateUserId, validateUser }
+module.exports = { logger, validateUserId, validateUser, validatePost }
