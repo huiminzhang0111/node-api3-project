@@ -22,8 +22,25 @@ async function validateUserId(req, res, next) {
   }
 }
 
-function validateUser(req, res, next) {
-  // DO YOUR MAGIC
+const userSchema = yup.object().shape({
+  name: yup
+    .string()
+    .typeError('name must be a string')
+    .trim()
+    .required('missing required name field')
+})
+
+async function validateUser(req, res, next) {
+  try {
+    const validated = await userSchema.validate(
+      req.body,
+      { strict: false, stripUnknown: true }
+    )
+    req.body = validated
+    next()
+  } catch (err) {
+    next({ status: 400, message: err.message })
+  }
 }
 
 function validatePost(req, res, next) {
@@ -31,4 +48,4 @@ function validatePost(req, res, next) {
 }
 
 // do not forget to expose these functions to other modules
-module.exports = { logger, validateUserId }
+module.exports = { logger, validateUserId, validateUser }

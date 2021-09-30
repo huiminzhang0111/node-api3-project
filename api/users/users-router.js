@@ -1,5 +1,5 @@
 const express = require('express');
-const { validateUserId } = require('../middleware/middleware');
+const { validateUserId, validateUser } = require('../middleware/middleware');
 const Users = require('./users-model');
 const Posts = require('../posts/posts-model');
 const { ValidationError } = require('yup');
@@ -8,7 +8,7 @@ const { ValidationError } = require('yup');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   Users.get(req.query)
     .then(users => {
       res.status(200).json(users)
@@ -24,9 +24,14 @@ router.get('/:id', validateUserId, (req, res) => {
   res.status(200).json(req.user)
 });
 
-router.post('/', (req, res) => {
+router.post('/', validateUser, (req, res, next) => {
+  Users.insert(req.body)
+  .then(user => {
+    res.status(201).json(user)
+  }).catch(next)
   // RETURN THE NEWLY CREATED USER OBJECT
   // this needs a middleware to check that the request body is valid
+
 });
 
 router.put('/:id', (req, res) => {
