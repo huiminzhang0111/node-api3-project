@@ -1,7 +1,7 @@
 const express = require('express'); // importing a commonJS module
 // global middlewares and the user's router need to be connected here
 const usersRouter = require('./users/users-router.js')
-
+const { logger } = require('./middleware/middleware')
 const server = express();
 // remember express by default cannot parse JSON in request bodies
 server.use(express.json());
@@ -21,11 +21,6 @@ server.use('*', (req, res, next) => {
 server.use(errorHandling) // will trap errors happening above 
 
 module.exports = server;
-
-function logger(req, res, next) {
-  console.log(`it is a ${req.method} request to ${req.originalUrl}`)
-  next() // next without arguments, sends req and res along the pipe
-}
 
 function errorHandling(err, req, res, next) {
   // connect this with server.use at the end of the pipeline
